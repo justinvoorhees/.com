@@ -18,9 +18,11 @@ describe("workSections", () => {
 		expect(receipts?.href).toBe("https://receipts.justinvoorhees.com");
 	});
 
-	it("links the Polychain Design System label to the local PDF", () => {
+	it("links the Polychain Design System label to its Blob-hosted PDF", () => {
 		const polychain = workSections.find((section) => section.id === "polychain");
-		expect(polychain?.href).toBe("/polychain-design-system.pdf");
+		expect(polychain?.href).toBe(
+			"https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com/Polychain%20Design%20System.pdf",
+		);
 	});
 
 	it("does not link the Structure Exchange label", () => {
@@ -30,5 +32,12 @@ describe("workSections", () => {
 
 	it("has the expected image counts per section", () => {
 		expect(workSections.map((section) => section.images.length)).toEqual([2, 1, 3, 3]);
+	});
+
+	it("points every image at the portfolio-assets Blob store", () => {
+		const allImages = workSections.flatMap((section) => section.images);
+		for (const image of allImages) {
+			expect(image.src.startsWith("https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com/")).toBe(true);
+		}
 	});
 });

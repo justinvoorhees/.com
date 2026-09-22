@@ -1,16 +1,7 @@
-import type { StaticImageData } from "next/image";
-import spandex01 from "@/assets/img/spandex_01.png";
-import spandex02 from "@/assets/img/spandex_02.png";
-import receiptsTest from "@/assets/img/receipts_test.png";
-import polychain01 from "@/assets/img/polychain_01.png";
-import polychain02 from "@/assets/img/polychain_02.png";
-import polychain03 from "@/assets/img/polychain_03.png";
-import structure01 from "@/assets/img/structure_01.png";
-import structure02 from "@/assets/img/structure_02.png";
-import structure03 from "@/assets/img/structure_03.png";
+const BLOB_BASE = "https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com";
 
 export type WorkImage = {
-	src: StaticImageData | string;
+	src: string;
 	alt: string;
 };
 
@@ -25,34 +16,34 @@ export const workSections: WorkSection[] = [
 	{
 		id: "spandex",
 		images: [
-			{ src: spandex01, alt: "spanDEX screen 1" },
-			{ src: spandex02, alt: "spanDEX screen 2" },
+			{ src: `${BLOB_BASE}/spandex_01.png`, alt: "spanDEX screen 1" },
+			{ src: `${BLOB_BASE}/spandex_02.png`, alt: "spanDEX screen 2" },
 		],
 		label: "spanDEX",
 		href: "https://spandex.sh/",
 	},
 	{
 		id: "receipts",
-		images: [{ src: receiptsTest, alt: "Receipts screen" }],
+		images: [{ src: `${BLOB_BASE}/receipts_test.png`, alt: "Receipts screen" }],
 		label: "Receipts",
 		href: "https://receipts.justinvoorhees.com",
 	},
 	{
 		id: "polychain",
 		images: [
-			{ src: polychain01, alt: "Polychain Design System 1" },
-			{ src: polychain02, alt: "Polychain Design System 2" },
-			{ src: polychain03, alt: "Polychain Design System 3" },
+			{ src: `${BLOB_BASE}/polychain_01.png`, alt: "Polychain Design System 1" },
+			{ src: `${BLOB_BASE}/polychain_02.png`, alt: "Polychain Design System 2" },
+			{ src: `${BLOB_BASE}/polychain_03.png`, alt: "Polychain Design System 3" },
 		],
 		label: "Polychain Design System",
-		href: "/polychain-design-system.pdf",
+		href: `${BLOB_BASE}/Polychain%20Design%20System.pdf`,
 	},
 	{
 		id: "structure",
 		images: [
-			{ src: structure01, alt: "Structure Exchange 1" },
-			{ src: structure02, alt: "Structure Exchange 2" },
-			{ src: structure03, alt: "Structure Exchange 3" },
+			{ src: `${BLOB_BASE}/structure_01.png`, alt: "Structure Exchange 1" },
+			{ src: `${BLOB_BASE}/structure_02.png`, alt: "Structure Exchange 2" },
+			{ src: `${BLOB_BASE}/structure_03.png`, alt: "Structure Exchange 3" },
 		],
 		label: "Structure Exchange",
 	},
