@@ -23,6 +23,7 @@ export function Lightbox({
 		<div
 			role="dialog"
 			aria-modal="true"
+			aria-label={alt}
 			className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(26,26,26,0.5)] backdrop-blur-[3px]"
 			onClick={onClose}
 		>

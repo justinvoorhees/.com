@@ -6,13 +6,13 @@ import { WorkGallery } from "./WorkGallery";
 const sections: WorkSection[] = [
 	{
 		id: "spandex",
-		images: [{ src: "spandex-1.png", alt: "spanDEX screen 1" }],
+		images: [{ src: "spandex-1.png", alt: "spanDEX screen 1", aspectRatio: "1 / 1" }],
 		label: "spanDEX",
 		href: "https://spandex.sh/",
 	},
 	{
 		id: "structure",
-		images: [{ src: "structure-1.png", alt: "Structure Exchange 1" }],
+		images: [{ src: "structure-1.png", alt: "Structure Exchange 1", aspectRatio: "1 / 1" }],
 		label: "Structure Exchange",
 	},
 ];
@@ -51,5 +51,28 @@ describe("WorkGallery", () => {
 		fireEvent.click(screen.getByAltText("spanDEX screen 1"));
 		fireEvent.click(screen.getByRole("dialog"));
 		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+	});
+
+	it("lazy-loads every image except the first one on the page", () => {
+		const multiImageSections: WorkSection[] = [
+			{
+				id: "spandex",
+				images: [
+					{ src: "spandex-1.png", alt: "spanDEX screen 1", aspectRatio: "1 / 1" },
+					{ src: "spandex-2.png", alt: "spanDEX screen 2", aspectRatio: "1 / 1" },
+				],
+				label: "spanDEX",
+				href: "https://spandex.sh/",
+			},
+			{
+				id: "structure",
+				images: [{ src: "structure-1.png", alt: "Structure Exchange 1", aspectRatio: "1 / 1" }],
+				label: "Structure Exchange",
+			},
+		];
+		render(<WorkGallery sections={multiImageSections} />);
+		expect(screen.getByAltText("spanDEX screen 1")).not.toHaveAttribute("loading");
+		expect(screen.getByAltText("spanDEX screen 2")).toHaveAttribute("loading", "lazy");
+		expect(screen.getByAltText("Structure Exchange 1")).toHaveAttribute("loading", "lazy");
 	});
 });

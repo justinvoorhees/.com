@@ -6,9 +6,8 @@ out/
 .vercel/
 .DS_Store
 *.local
-.env
-.env.local
 .env*
+!.env.example
 
 # Source-of-truth for these now lives in Vercel Blob, not git — see
 # docs/superpowers/specs/2026-09-21-portfolio-site-design.md

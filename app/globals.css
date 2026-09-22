@@ -16,3 +16,8 @@ body {
 	color: var(--color-foreground);
 	font-family: var(--font-sans);
 }
+
+a {
+	text-underline-position: from-font;
+	text-decoration-skip-ink: none;
+}

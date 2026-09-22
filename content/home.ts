@@ -1,21 +1,8 @@
-export type Job = {
-	company: string;
-	role: string;
-	dates: string;
-};
-
 export type Achievement = {
 	label: string;
 	suffix: string;
-	href: string;
+	href?: string;
 };
-
-export const jobs: Job[] = [
-	{ company: "Fabric", role: "Designer", dates: "Aug 2024 - Sep 2026" },
-	{ company: "Typeset", role: "Designer", dates: "Aug 2023 - Apr 2024" },
-	{ company: "SamCart", role: "Designer", dates: "Feb 2022 - Aug 2023" },
-	{ company: "Nonlinear", role: "Junior Designer", dates: "Nov 2020 - Feb 2022" },
-];
 
 export const achievements: Achievement[] = [
 	{
@@ -47,5 +34,9 @@ export const achievements: Achievement[] = [
 		label: "Tourist",
 		suffix: "",
 		href: "https://album.link/s/3TF4BMhLxpINZElzyEZR4l",
+	},
+	{
+		label: "👀",
+		suffix: "",
 	},
 ];
