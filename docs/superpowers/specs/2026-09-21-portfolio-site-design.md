@@ -36,18 +36,29 @@ secrets; it will get its own short design pass once this site ships.
   there is no nav component anywhere in it. The only entry point into
   `/work` is the four underlined terms in the Home bio paragraph.
   There is no link back to Home from `/work` — browser back only.
-- No image CMS/blob storage — images commit directly to the repo
-  (confirmed acceptable given the small number of images).
 - No custom in-page PDF viewer — the Polychain Design System link
   opens the PDF via the browser's native renderer.
 
+> **Revision (2026-09-22):** the original plan was to commit images and
+> the PDF directly to the repo. In practice the "Polychain Design
+> System.pdf" turned out to be 211MB (GitHub hard-rejects any file over
+> 100MB) and one image (`spandex_01.png`) was 80MB — both impractical to
+> keep in git. All 9 images and the PDF now live in Vercel Blob
+> (`portfolio-assets` store) instead; git history was rewritten to
+> remove them after this was discovered (see Assets section below for
+> the resulting URLs).
+
 ## Repo & deployment
 
-- New GitHub repo `portfolio` under Justin's personal GitHub account
-  (this directory becomes that repo).
+- GitHub repo: `github.com/justinvoorhees/.com` (Justin's personal
+  account; `receipts` is reserved separately for the decoder follow-up).
 - Stack: Next.js (App Router) + TypeScript + Tailwind CSS.
-- Vercel project connected to the repo via GitHub integration;
-  push to `main` auto-deploys to production.
+- Vercel project `portfolio` (account `hello-41099863`), with a linked
+  Vercel Blob store `portfolio-assets` (public access) holding all
+  images and the PDF. GitHub auto-deploy integration still needs to be
+  connected via the Vercel dashboard (the CLI's auto-link failed —
+  Vercel account has no GitHub login connection yet); until then,
+  deploys are manual (`vercel --prod`).
 - Custom domain `justinvoorhees.com` attached in Vercel. DNS is
   currently managed at `cargo.site`; records will be updated there per
   Vercel's instructions. The current Cargo site is parked/unused, so
@@ -109,10 +120,9 @@ anchor `id` matching the Home page's links:
 2. **`#receipts`** — `receipts_test.png`, label "Receipts" →
    external link to `https://receipts.justinvoorhees.com`.
 3. **`#polychain`** — `polychain_01.png`, `polychain_02.png`,
-   `polychain_03.png`, label "Polychain Design System" → opens
-   `public/polychain-design-system.pdf` (copied from
-   `assets/Polychain Design System.pdf`) in a new tab; browser
-   renders it natively.
+   `polychain_03.png`, label "Polychain Design System" → opens the
+   PDF's Vercel Blob URL (see Assets) in a new tab; browser renders it
+   natively.
 4. **`#structure`** — `structure_01.png`, `structure_02.png`,
    `structure_03.png`, label "Structure Exchange" — plain text, not
    a link (confirmed: no href on this label in Figma).
@@ -135,16 +145,32 @@ for this kind of overlay.
 
 ## Assets
 
-- **Images** (`assets/img/*.png`): imported directly into components
-  via Next's static image import and rendered with `next/image` — no
-  need to move them into `/public`; committed to git as-is.
-- **Font** (`assets/ABCDiatypeVariable.ttf`): loaded via
-  `next/font/local`, self-hosted at build time, referenced by path —
-  no move needed.
-- **PDF** (`assets/Polychain Design System.pdf`): copied into
-  `public/polychain-design-system.pdf` since `/public` is the only
-  statically-servable path in Next.js, and it needs a real URL to
-  link to.
+- **Images and PDF**: hosted in the Vercel Blob store `portfolio-assets`
+  (public access, base `https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com`).
+  Referenced by plain URL string in `content/work.ts` — not statically
+  imported, since they're remote. Local copies remain in `assets/img/`
+  and `assets/Polychain Design System.pdf` for reference only, gitignored
+  (not committed — see the Revision note under Non-goals for why). The
+  exact URLs:
+  - `spandex_01.png` → `.../spandex_01.png`
+  - `spandex_02.png` → `.../spandex_02.png`
+  - `receipts_test.png` → `.../receipts_test.png`
+  - `polychain_01.png` → `.../polychain_01.png`
+  - `polychain_02.png` → `.../polychain_02.png`
+  - `polychain_03.png` → `.../polychain_03.png`
+  - `structure_01.png` → `.../structure_01.png`
+  - `structure_02.png` → `.../structure_02.png`
+  - `structure_03.png` → `.../structure_03.png`
+  - PDF → `.../Polychain%20Design%20System.pdf`
+  (all under the base URL above)
+- Since these are remote URLs (not static imports), work-page images
+  render via plain `<img>` tags rather than `next/image` — avoids
+  needing `next.config.ts` `images.remotePatterns` configuration and
+  explicit width/height for a Next.js-optimized remote image. Responsive
+  sizing is handled with CSS (`w-full h-auto`) as before.
+- **Font** (`assets/ABCDiatypeVariable.ttf`): unaffected by the above —
+  still committed to git (small file, ~700KB) and loaded via
+  `next/font/local`, self-hosted at build time.
 
 ## Styling tokens (from Figma)
 
