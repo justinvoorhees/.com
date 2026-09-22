@@ -16,7 +16,7 @@
 - Next.js `^15.0.0`, React `^19.0.0`, TypeScript `^5.4.0`, Tailwind `^4.0.0` — pinned to match these floors.
 - Design tokens (exact values, from the spec): background `#fafafa`, text `#191414`, link `#0921ea`, font "ABC Diatype Variable" loaded from `assets/ABCDiatypeVariable.ttf`.
 - No nav/header component anywhere. The only entry points into `/work` are the four underlined terms in the Home bio paragraph (`Receipts`, `spanDEX`, `Polychain Capital`, `Structure`), linking to `/work#receipts`, `/work#spandex`, `/work#polychain`, `/work#structure` respectively.
-- Images live in `assets/img/*.png` and are imported directly into components (not moved to `/public`). The PDF is the one exception — copied into `public/` because `/public` is the only statically-servable path in Next.js.
+- **Revised 2026-09-22:** images and the PDF are hosted in the Vercel Blob store `portfolio-assets` (public access), base URL `https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com`. Referenced as plain URL strings in `content/work.ts`, not static imports — local copies stay in `assets/` for reference only and are gitignored. Work-page images render via plain `<img>` (not `next/image`), since `next/image` needs either a static import or `next.config.ts` `images.remotePatterns` + explicit dimensions for a remote URL, and plain `<img>` avoids that config for a personal site this size.
 - Deployment (GitHub repo creation, Vercel project, custom domain/DNS cutover) is explicitly **out of scope for this plan** — it involves live logins and a DNS panel change that need direct user participation, and will be done as a guided follow-up once this code is reviewed.
 
 ---
@@ -356,23 +356,19 @@ git commit -m "Wire up ABC Diatype font and design tokens"
 
 ---
 
-### Task 4: Work content data + PDF asset
+### Task 4: Work content data (Vercel Blob URLs)
+
+**Revised 2026-09-22:** originally this task imported local images and copied the PDF into `public/`. The PDF turned out to be 211MB and one image 80MB — both impractical for git. All 9 images and the PDF are now uploaded to the Vercel Blob store `portfolio-assets` (public access), base URL `https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com`. This task now just references those URLs as plain strings — no image imports, no PDF copy.
 
 **Files:**
 - Create: `content/work.ts`
 - Create: `content/work.test.ts`
-- Create: `public/polychain-design-system.pdf` (copy of `assets/Polychain Design System.pdf`)
 
 **Interfaces:**
-- Consumes: the 9 PNGs already in `assets/img/`.
-- Produces: `workSections: WorkSection[]` (type `WorkSection = { id: string; images: { src: StaticImageData | string; alt: string }[]; label: string; href?: string }`), exported from `content/work.ts`. Task 6 (`WorkGallery`) and Task 7 (`/work` page) both import `workSections` and the `WorkSection`/`WorkImage` types from this file.
+- Consumes: nothing (the Blob URLs are fixed, already-uploaded values).
+- Produces: `workSections: WorkSection[]` (type `WorkSection = { id: string; images: { src: string; alt: string }[]; label: string; href?: string }`), exported from `content/work.ts`. Task 6 (`WorkGallery`) and Task 7 (`/work` page) both import `workSections` and the `WorkSection`/`WorkImage` types from this file.
 
-- [ ] **Step 1: Copy the PDF into `public/`**
-
-Run: `cp "assets/Polychain Design System.pdf" "public/polychain-design-system.pdf"`
-Expected: `public/polychain-design-system.pdf` exists (`ls public/` shows it).
-
-- [ ] **Step 2: Write the failing test**
+- [ ] **Step 1: Write the failing test**
 
 ```ts
 // content/work.test.ts
@@ -396,9 +392,11 @@ describe("workSections", () => {
 		expect(receipts?.href).toBe("https://receipts.justinvoorhees.com");
 	});
 
-	it("links the Polychain Design System label to the local PDF", () => {
+	it("links the Polychain Design System label to its Blob-hosted PDF", () => {
 		const polychain = workSections.find((section) => section.id === "polychain");
-		expect(polychain?.href).toBe("/polychain-design-system.pdf");
+		expect(polychain?.href).toBe(
+			"https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com/Polychain%20Design%20System.pdf",
+		);
 	});
 
 	it("does not link the Structure Exchange label", () => {
@@ -409,30 +407,28 @@ describe("workSections", () => {
 	it("has the expected image counts per section", () => {
 		expect(workSections.map((section) => section.images.length)).toEqual([2, 1, 3, 3]);
 	});
+
+	it("points every image at the portfolio-assets Blob store", () => {
+		const allImages = workSections.flatMap((section) => section.images);
+		for (const image of allImages) {
+			expect(image.src.startsWith("https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com/")).toBe(true);
+		}
+	});
 });
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [ ] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run content/work.test.ts`
 Expected: FAIL with "Cannot find module './work'" (file doesn't exist yet).
 
-- [ ] **Step 4: Write `content/work.ts`**
+- [ ] **Step 3: Write `content/work.ts`**
 
 ```ts
-import type { StaticImageData } from "next/image";
-import spandex01 from "@/assets/img/spandex_01.png";
-import spandex02 from "@/assets/img/spandex_02.png";
-import receiptsTest from "@/assets/img/receipts_test.png";
-import polychain01 from "@/assets/img/polychain_01.png";
-import polychain02 from "@/assets/img/polychain_02.png";
-import polychain03 from "@/assets/img/polychain_03.png";
-import structure01 from "@/assets/img/structure_01.png";
-import structure02 from "@/assets/img/structure_02.png";
-import structure03 from "@/assets/img/structure_03.png";
+const BLOB_BASE = "https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com";
 
 export type WorkImage = {
-	src: StaticImageData | string;
+	src: string;
 	alt: string;
 };
 
@@ -447,55 +443,57 @@ export const workSections: WorkSection[] = [
 	{
 		id: "spandex",
 		images: [
-			{ src: spandex01, alt: "spanDEX screen 1" },
-			{ src: spandex02, alt: "spanDEX screen 2" },
+			{ src: `${BLOB_BASE}/spandex_01.png`, alt: "spanDEX screen 1" },
+			{ src: `${BLOB_BASE}/spandex_02.png`, alt: "spanDEX screen 2" },
 		],
 		label: "spanDEX",
 		href: "https://spandex.sh/",
 	},
 	{
 		id: "receipts",
-		images: [{ src: receiptsTest, alt: "Receipts screen" }],
+		images: [{ src: `${BLOB_BASE}/receipts_test.png`, alt: "Receipts screen" }],
 		label: "Receipts",
 		href: "https://receipts.justinvoorhees.com",
 	},
 	{
 		id: "polychain",
 		images: [
-			{ src: polychain01, alt: "Polychain Design System 1" },
-			{ src: polychain02, alt: "Polychain Design System 2" },
-			{ src: polychain03, alt: "Polychain Design System 3" },
+			{ src: `${BLOB_BASE}/polychain_01.png`, alt: "Polychain Design System 1" },
+			{ src: `${BLOB_BASE}/polychain_02.png`, alt: "Polychain Design System 2" },
+			{ src: `${BLOB_BASE}/polychain_03.png`, alt: "Polychain Design System 3" },
 		],
 		label: "Polychain Design System",
-		href: "/polychain-design-system.pdf",
+		href: `${BLOB_BASE}/Polychain%20Design%20System.pdf`,
 	},
 	{
 		id: "structure",
 		images: [
-			{ src: structure01, alt: "Structure Exchange 1" },
-			{ src: structure02, alt: "Structure Exchange 2" },
-			{ src: structure03, alt: "Structure Exchange 3" },
+			{ src: `${BLOB_BASE}/structure_01.png`, alt: "Structure Exchange 1" },
+			{ src: `${BLOB_BASE}/structure_02.png`, alt: "Structure Exchange 2" },
+			{ src: `${BLOB_BASE}/structure_03.png`, alt: "Structure Exchange 3" },
 		],
 		label: "Structure Exchange",
 	},
 ];
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [ ] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run content/work.test.ts`
-Expected: PASS (5 tests). Note: under Vitest, importing a `.png` resolves to a plain string (Vite's default asset handling), which satisfies the `StaticImageData | string` type — no mocking needed for this data-only test.
+Expected: PASS (6 tests).
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add content/work.ts content/work.test.ts public/polychain-design-system.pdf
-git commit -m "Add work page content data and PDF asset"
+git add content/work.ts content/work.test.ts
+git commit -m "Add work page content data (Vercel Blob URLs)"
 ```
 
 ---
 
 ### Task 5: Lightbox component
+
+**Revised 2026-09-22:** images are now remote Blob URLs (Task 4), not static imports, so this uses a plain `<img>` instead of `next/image` — avoids needing `next.config.ts` `images.remotePatterns` plus explicit width/height that `next/image` requires for a non-imported remote source. No mocking needed in tests as a result.
 
 **Files:**
 - Create: `components/Lightbox.tsx`
@@ -503,36 +501,9 @@ git commit -m "Add work page content data and PDF asset"
 
 **Interfaces:**
 - Consumes: nothing project-specific (takes `src`/`alt`/`onClose` as props).
-- Produces: `Lightbox` component, exported from `components/Lightbox.tsx`, with props `{ src: StaticImageData | string; alt: string; onClose: () => void }`. Renders a `role="dialog"` element. Task 6 (`WorkGallery`) renders this component when an image is clicked.
+- Produces: `Lightbox` component, exported from `components/Lightbox.tsx`, with props `{ src: string; alt: string; onClose: () => void }`. Renders a `role="dialog"` element. Task 6 (`WorkGallery`) renders this component when an image is clicked.
 
-This task needs `next/image` mocked so tests don't depend on real image optimization. Add the mock to `vitest.setup.ts` now — it's shared by every later component test too.
-
-- [ ] **Step 1: Add the `next/image` mock to `vitest.setup.ts`**
-
-```ts
-import "@testing-library/jest-dom/vitest";
-import { vi } from "vitest";
-import React from "react";
-
-vi.mock("next/image", () => ({
-	default: (props: {
-		src: { src: string } | string;
-		alt: string;
-		className?: string;
-		sizes?: string;
-	}) => {
-		const resolvedSrc =
-			typeof props.src === "string" ? props.src : props.src.src;
-		return React.createElement("img", {
-			src: resolvedSrc,
-			alt: props.alt,
-			className: props.className,
-		});
-	},
-}));
-```
-
-- [ ] **Step 2: Write the failing test**
+- [ ] **Step 1: Write the failing test**
 
 ```tsx
 // components/Lightbox.test.tsx
@@ -542,7 +513,7 @@ import { Lightbox } from "./Lightbox";
 
 describe("Lightbox", () => {
 	it("renders the given image inside a dialog", () => {
-		render(<Lightbox src="spandex-1.png" alt="spanDEX screen 1" onClose={vi.fn()} />);
+		render(<Lightbox src="https://example.com/spandex-1.png" alt="spanDEX screen 1" onClose={vi.fn()} />);
 		const dialog = screen.getByRole("dialog");
 		expect(dialog).toBeInTheDocument();
 		expect(screen.getByAltText("spanDEX screen 1")).toBeInTheDocument();
@@ -550,39 +521,37 @@ describe("Lightbox", () => {
 
 	it("calls onClose when the backdrop is clicked", () => {
 		const onClose = vi.fn();
-		render(<Lightbox src="spandex-1.png" alt="spanDEX screen 1" onClose={onClose} />);
+		render(<Lightbox src="https://example.com/spandex-1.png" alt="spanDEX screen 1" onClose={onClose} />);
 		fireEvent.click(screen.getByRole("dialog"));
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
 	it("does not call onClose when the image itself is clicked", () => {
 		const onClose = vi.fn();
-		render(<Lightbox src="spandex-1.png" alt="spanDEX screen 1" onClose={onClose} />);
+		render(<Lightbox src="https://example.com/spandex-1.png" alt="spanDEX screen 1" onClose={onClose} />);
 		fireEvent.click(screen.getByAltText("spanDEX screen 1"));
 		expect(onClose).not.toHaveBeenCalled();
 	});
 
 	it("calls onClose when Escape is pressed", () => {
 		const onClose = vi.fn();
-		render(<Lightbox src="spandex-1.png" alt="spanDEX screen 1" onClose={onClose} />);
+		render(<Lightbox src="https://example.com/spandex-1.png" alt="spanDEX screen 1" onClose={onClose} />);
 		fireEvent.keyDown(window, { key: "Escape" });
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 });
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [ ] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run components/Lightbox.test.tsx`
 Expected: FAIL with "Cannot find module './Lightbox'".
 
-- [ ] **Step 4: Write `components/Lightbox.tsx`**
+- [ ] **Step 3: Write `components/Lightbox.tsx`**
 
 ```tsx
 "use client";
 
-import type { StaticImageData } from "next/image";
-import Image from "next/image";
 import { useEffect } from "react";
 
 export function Lightbox({
@@ -590,7 +559,7 @@ export function Lightbox({
 	alt,
 	onClose,
 }: {
-	src: StaticImageData | string;
+	src: string;
 	alt: string;
 	onClose: () => void;
 }) {
@@ -603,7 +572,6 @@ export function Lightbox({
 	}, [onClose]);
 
 	return (
-		// biome-ignore-start: dialog is closed via Escape (keydown handler above) as well as click
 		<div
 			role="dialog"
 			aria-modal="true"
@@ -614,33 +582,35 @@ export function Lightbox({
 				className="max-h-[90vh] max-w-[90vw]"
 				onClick={(event) => event.stopPropagation()}
 			>
-				<Image
+				{/* eslint-disable-next-line @next/next/no-img-element -- remote Blob URL, not a static import */}
+				<img
 					src={src}
 					alt={alt}
 					className="h-auto max-h-[90vh] w-auto max-w-full"
 				/>
 			</div>
 		</div>
-		// biome-ignore-end
 	);
 }
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [ ] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run components/Lightbox.test.tsx`
 Expected: PASS (4 tests).
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add vitest.setup.ts components/Lightbox.tsx components/Lightbox.test.tsx
+git add components/Lightbox.tsx components/Lightbox.test.tsx
 git commit -m "Add Lightbox component"
 ```
 
 ---
 
 ### Task 6: WorkGallery component
+
+**Revised 2026-09-22:** uses plain `<img>` (matching Task 5's Lightbox), since Task 4's images are remote Blob URLs now, not static imports.
 
 **Files:**
 - Create: `components/WorkGallery.tsx`
@@ -721,7 +691,6 @@ Expected: FAIL with "Cannot find module './WorkGallery'".
 ```tsx
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import type { WorkImage, WorkSection } from "@/content/work";
 import { Lightbox } from "@/components/Lightbox";
@@ -740,12 +709,8 @@ export function WorkGallery({ sections }: { sections: WorkSection[] }) {
 							className="block w-full cursor-zoom-in text-left"
 							onClick={() => setOpenImage(image)}
 						>
-							<Image
-								src={image.src}
-								alt={image.alt}
-								className="h-auto w-full"
-								sizes="(min-width: 800px) 800px, 100vw"
-							/>
+							{/* eslint-disable-next-line @next/next/no-img-element -- remote Blob URL, not a static import */}
+							<img src={image.src} alt={image.alt} className="h-auto w-full" />
 						</button>
 					))}
 					{section.href ? (
@@ -815,11 +780,11 @@ describe("WorkPage", () => {
 		expect(document.getElementById("structure")).toBeInTheDocument();
 	});
 
-	it("links the Polychain Design System label to the PDF", () => {
+	it("links the Polychain Design System label to its Blob-hosted PDF", () => {
 		render(<WorkPage />);
 		expect(screen.getByRole("link", { name: "Polychain Design System" })).toHaveAttribute(
 			"href",
-			"/polychain-design-system.pdf",
+			"https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com/Polychain%20Design%20System.pdf",
 		);
 	});
 
@@ -1127,6 +1092,6 @@ git commit -m "Remove smoke test now that real tests exist"
 
 ## Self-review notes
 
-- **Spec coverage:** Home content/links (Task 8), Work sections/links/PDF (Tasks 4, 6, 7), lightbox open/close (Tasks 5, 6), fonts/tokens (Task 3), scaffolding/build (Task 1), assets handling — images via static import (Task 4), PDF via `/public` copy (Task 4), no-nav constraint (documented in Global Constraints, nothing to build), responsive check (Task 9 manual pass). Deployment section of the spec is intentionally deferred — called out explicitly in Global Constraints.
+- **Spec coverage:** Home content/links (Task 8), Work sections/links/PDF (Tasks 4, 6, 7), lightbox open/close (Tasks 5, 6), fonts/tokens (Task 3), scaffolding/build (Task 1), assets handling — images and PDF via Vercel Blob URLs (Task 4, revised 2026-09-22), no-nav constraint (documented in Global Constraints, nothing to build), responsive check (Task 9 manual pass). Deployment section of the spec is intentionally deferred — called out explicitly in Global Constraints.
 - **Placeholder scan:** no TBD/TODO; every step has real, complete code.
 - **Type consistency:** `WorkSection`/`WorkImage` defined once in Task 4, imported (not redefined) in Tasks 6 and 7; `Lightbox` props defined in Task 5 match how Task 6 calls it (`src`, `alt`, `onClose`).
