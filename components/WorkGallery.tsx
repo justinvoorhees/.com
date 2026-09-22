@@ -10,43 +10,45 @@ export function WorkGallery({ sections }: { sections: WorkSection[] }) {
 
 	return (
 		<>
-			{sections.map((section) => (
-				<section key={section.id} id={section.id} className="flex w-full flex-col gap-5">
-					{section.images.map((image) => {
-						const isFirstImageOnPage = imageIndex === 0;
-						imageIndex += 1;
-						return (
-							<button
-								key={image.src}
-								type="button"
-								className="block w-full cursor-zoom-in text-left"
-								onClick={() => setOpenImage(image)}
+			<div className="flex w-full flex-col gap-[50px]">
+				{sections.map((section) => (
+					<section key={section.id} id={section.id} className="flex w-full flex-col gap-5">
+						{section.images.map((image) => {
+							const isFirstImageOnPage = imageIndex === 0;
+							imageIndex += 1;
+							return (
+								<button
+									key={image.src}
+									type="button"
+									className="block w-full cursor-zoom-in text-left"
+									onClick={() => setOpenImage(image)}
+								>
+									{/* eslint-disable-next-line @next/next/no-img-element -- remote Blob URL, not a static import */}
+									<img
+										src={image.src}
+										alt={image.alt}
+										className="h-auto w-full"
+										style={{ aspectRatio: image.aspectRatio }}
+										loading={isFirstImageOnPage ? undefined : "lazy"}
+									/>
+								</button>
+							);
+						})}
+						{section.href ? (
+							<a
+								href={section.href}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="underline"
 							>
-								{/* eslint-disable-next-line @next/next/no-img-element -- remote Blob URL, not a static import */}
-								<img
-									src={image.src}
-									alt={image.alt}
-									className="h-auto w-full"
-									style={{ aspectRatio: image.aspectRatio }}
-									loading={isFirstImageOnPage ? undefined : "lazy"}
-								/>
-							</button>
-						);
-					})}
-					{section.href ? (
-						<a
-							href={section.href}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="underline"
-						>
-							{section.label}
-						</a>
-					) : (
-						<p>{section.label}</p>
-					)}
-				</section>
-			))}
+								{section.label}
+							</a>
+						) : (
+							<p>{section.label}</p>
+						)}
+					</section>
+				))}
+			</div>
 			{openImage ? (
 				<Lightbox
 					src={openImage.src}

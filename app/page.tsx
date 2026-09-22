@@ -4,9 +4,9 @@ import { workSections } from "@/content/work";
 
 export default function HomePage() {
 	return (
-		<main className="mx-auto flex max-w-[1000px] flex-col gap-[50px] px-6 py-[200px]">
-			<div className="flex flex-col gap-8 sm:flex-row sm:gap-16">
-				<div className="shrink-0 whitespace-nowrap">
+		<main className="mx-auto flex max-w-[1000px] flex-col px-6 py-[200px]">
+			<div className="flex flex-col gap-8 sm:flex-row sm:gap-0">
+				<div className="w-full sm:w-1/2">
 					<p>Justin Voorhees</p>
 					<p>Designer</p>
 					<p>&nbsp;</p>
@@ -15,7 +15,7 @@ export default function HomePage() {
 					</a>
 				</div>
 
-				<div className="flex max-w-[500px] flex-col gap-4">
+				<div className="flex w-full flex-col gap-4 sm:w-1/2">
 					<p>Navigating the melt of product roles from San Diego, CA.</p>
 					<p>
 						{"Recently I worked with Fabric on Hypersub, "}
@@ -40,9 +40,11 @@ export default function HomePage() {
 				</div>
 			</div>
 
-			<WorkGallery sections={workSections} />
+			<div className="mt-[50px] sm:mt-[333px]">
+				<WorkGallery sections={workSections} />
+			</div>
 
-			<div className="flex w-full flex-col gap-5">
+			<div className="mt-[50px] flex w-full flex-col gap-5">
 				<hr className="w-full border-t border-black/10" />
 				<ul className="flex w-full max-w-[337px] flex-col">
 					{achievements.map((achievement) =>
