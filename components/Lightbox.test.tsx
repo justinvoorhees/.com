@@ -35,6 +35,14 @@ describe("Lightbox", () => {
 		expect(onClose).not.toHaveBeenCalled();
 	});
 
+	it("calls onClose when the letterboxed area around the image is clicked", () => {
+		const onClose = vi.fn();
+		render(<Lightbox images={images} initialIndex={0} onClose={onClose} />);
+		const image = screen.getByAltText("spanDEX screen 1");
+		fireEvent.click(image.parentElement as HTMLElement);
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
 	it("calls onClose when Escape is pressed", () => {
 		const onClose = vi.fn();
 		render(<Lightbox images={images} initialIndex={0} onClose={onClose} />);
@@ -76,5 +84,13 @@ describe("Lightbox", () => {
 		fireEvent.touchStart(dialog, touch(200, 0));
 		fireEvent.touchEnd(dialog, touch(100, 300));
 		expect(screen.getByAltText("spanDEX screen 1")).toBeInTheDocument();
+	});
+
+	it("locks body scroll while open and restores it on close", () => {
+		document.body.style.overflow = "auto";
+		const { unmount } = render(<Lightbox images={images} initialIndex={0} onClose={vi.fn()} />);
+		expect(document.body.style.overflow).toBe("hidden");
+		unmount();
+		expect(document.body.style.overflow).toBe("auto");
 	});
 });
