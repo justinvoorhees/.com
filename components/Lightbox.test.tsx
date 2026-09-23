@@ -35,12 +35,12 @@ describe("Lightbox", () => {
 		expect(onClose).not.toHaveBeenCalled();
 	});
 
-	it("calls onClose when the letterboxed area around the image is clicked", () => {
+	it("does not call onClose when the image's wrapper is clicked", () => {
 		const onClose = vi.fn();
 		render(<Lightbox images={images} initialIndex={0} onClose={onClose} />);
 		const image = screen.getByAltText("spanDEX screen 1");
 		fireEvent.click(image.parentElement as HTMLElement);
-		expect(onClose).toHaveBeenCalledTimes(1);
+		expect(onClose).not.toHaveBeenCalled();
 	});
 
 	it("calls onClose when Escape is pressed", () => {

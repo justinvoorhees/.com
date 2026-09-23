@@ -73,14 +73,12 @@ export function Lightbox({
 			onTouchStart={handleTouchStart}
 			onTouchEnd={handleTouchEnd}
 		>
-			<div className="relative h-[90vh] w-full sm:h-auto sm:w-auto sm:max-h-[90vh] sm:max-w-[90vw]">
+			<div
+				className="relative max-h-[90vh] max-w-full sm:max-w-[90vw]"
+				onClick={(event) => event.stopPropagation()}
+			>
 				{/* eslint-disable-next-line @next/next/no-img-element -- remote Blob URL, not a static import */}
-				<img
-					src={image.src}
-					alt={image.alt}
-					className="h-full w-full object-contain sm:h-auto sm:max-h-[90vh] sm:w-auto sm:max-w-full"
-					onClick={(event) => event.stopPropagation()}
-				/>
+				<img src={image.src} alt={image.alt} className="h-auto max-h-[90vh] w-auto max-w-full" />
 			</div>
 		</div>
 	);
