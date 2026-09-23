@@ -25,6 +25,16 @@ describe("workSections", () => {
 		);
 	});
 
+	it("embeds a live preview of spandex.sh on the spanDEX section", () => {
+		const spandex = workSections.find((section) => section.id === "spandex");
+		expect(spandex?.embed).toEqual({
+			src: "https://demo.spandex.sh/",
+			aspectRatio: "3 / 4",
+			title: "spanDEX live preview",
+			designWidth: 600,
+		});
+	});
+
 	it("does not link the Structure Exchange label", () => {
 		const structure = workSections.find((section) => section.id === "structure");
 		expect(structure?.href).toBeUndefined();

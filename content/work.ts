@@ -6,11 +6,20 @@ export type WorkImage = {
 	aspectRatio: string;
 };
 
+export type WorkEmbed = {
+	src: string;
+	aspectRatio: string;
+	title: string;
+	/** CSS px width the embedded page is rendered at before being scaled to fit its column; lower values zoom in. */
+	designWidth: number;
+};
+
 export type WorkSection = {
 	id: string;
 	images: WorkImage[];
 	label: string;
 	href?: string;
+	embed?: WorkEmbed;
 };
 
 export const workSections: WorkSection[] = [
@@ -22,11 +31,17 @@ export const workSections: WorkSection[] = [
 		],
 		label: "spanDEX",
 		href: "https://spandex.sh/",
+		embed: {
+			src: "https://demo.spandex.sh/",
+			aspectRatio: "3 / 4",
+			title: "spanDEX live preview",
+			designWidth: 600,
+		},
 	},
 	{
 		id: "receipts",
 		images: [
-			{ src: `${BLOB_BASE}/receipts_test.png`, alt: "Receipts screen", aspectRatio: "1000 / 637.451" },
+			{ src: `${BLOB_BASE}/receipts_01.jpg`, alt: "Receipts screen", aspectRatio: "1 / 1" },
 		],
 		label: "Receipts",
 		href: "https://receipts.justinvoorhees.com",

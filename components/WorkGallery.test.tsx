@@ -9,6 +9,7 @@ const sections: WorkSection[] = [
 		images: [{ src: "spandex-1.png", alt: "spanDEX screen 1", aspectRatio: "1 / 1" }],
 		label: "spanDEX",
 		href: "https://spandex.sh/",
+		embed: { src: "https://spandex.sh/", aspectRatio: "16 / 9", title: "spanDEX live preview", designWidth: 1000 },
 	},
 	{
 		id: "structure",
@@ -30,6 +31,31 @@ describe("WorkGallery", () => {
 		expect(link).toHaveAttribute("href", "https://spandex.sh/");
 		expect(link).toHaveAttribute("target", "_blank");
 		expect(link).toHaveAttribute("rel", "noopener noreferrer");
+	});
+
+	it("renders a live, inert iframe embed wrapped in a link to the section href", () => {
+		render(<WorkGallery sections={sections} />);
+		const iframe = screen.getByTitle("spanDEX live preview");
+		expect(iframe.tagName).toBe("IFRAME");
+		expect(iframe).toHaveAttribute("src", "https://spandex.sh/");
+		expect(iframe).toHaveClass("pointer-events-none");
+		const link = iframe.closest("a");
+		expect(link).toHaveAttribute("href", "https://spandex.sh/");
+		expect(link).toHaveAttribute("target", "_blank");
+		expect(link).toHaveAttribute("rel", "noopener noreferrer");
+	});
+
+	it("renders the embed at a fixed 1000px design width, scaled to fit its container", () => {
+		render(<WorkGallery sections={sections} />);
+		const iframe = screen.getByTitle("spanDEX live preview");
+		expect(iframe.style.width).toBe("1000px");
+		expect(iframe.style.height).toBe("562.5px");
+		expect(iframe.style.transform).toBe("scale(calc(100cqi / 1000px))");
+	});
+
+	it("does not render an iframe embed when a section has no embed", () => {
+		render(<WorkGallery sections={sections} />);
+		expect(screen.queryByTitle(/Structure Exchange/)).not.toBeInTheDocument();
 	});
 
 	it("renders a plain text label when href is not set", () => {
@@ -74,5 +100,30 @@ describe("WorkGallery", () => {
 		expect(screen.getByAltText("spanDEX screen 1")).not.toHaveAttribute("loading");
 		expect(screen.getByAltText("spanDEX screen 2")).toHaveAttribute("loading", "lazy");
 		expect(screen.getByAltText("Structure Exchange 1")).toHaveAttribute("loading", "lazy");
+	});
+
+	it("swipes across section boundaries in the lightbox", () => {
+		const multiImageSections: WorkSection[] = [
+			{
+				id: "spandex",
+				images: [
+					{ src: "spandex-1.png", alt: "spanDEX screen 1", aspectRatio: "1 / 1" },
+					{ src: "spandex-2.png", alt: "spanDEX screen 2", aspectRatio: "1 / 1" },
+				],
+				label: "spanDEX",
+				href: "https://spandex.sh/",
+			},
+			{
+				id: "structure",
+				images: [{ src: "structure-1.png", alt: "Structure Exchange 1", aspectRatio: "1 / 1" }],
+				label: "Structure Exchange",
+			},
+		];
+		render(<WorkGallery sections={multiImageSections} />);
+		fireEvent.click(screen.getByAltText("spanDEX screen 2"));
+		const dialog = screen.getByRole("dialog");
+		fireEvent.touchStart(dialog, { touches: [{ clientX: 200, clientY: 0 }] });
+		fireEvent.touchEnd(dialog, { changedTouches: [{ clientX: 100, clientY: 0 }] });
+		expect(within(dialog).getByAltText("Structure Exchange 1")).toBeInTheDocument();
 	});
 });
