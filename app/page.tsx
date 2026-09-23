@@ -4,7 +4,7 @@ import { workSections } from "@/content/work";
 
 export default function HomePage() {
 	return (
-		<main className="mx-auto flex max-w-[1000px] flex-col px-6 py-[200px] sm:py-[333px]">
+		<main className="mx-auto flex max-w-[1000px] flex-col px-[10px] py-[200px] sm:px-6 sm:py-[333px]">
 			<div className="flex flex-col gap-8 sm:flex-row sm:gap-0">
 				<div className="w-full sm:w-1/2">
 					<p>Justin Voorhees</p>
