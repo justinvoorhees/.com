@@ -60,6 +60,7 @@ export function WorkGallery({ sections }: { sections: WorkSection[] }) {
 										title={section.embed.title}
 										loading="lazy"
 										tabIndex={-1}
+										scrolling="no"
 										className="pointer-events-none absolute left-0 top-0 border-0"
 										style={{
 											width: section.embed.designWidth,
