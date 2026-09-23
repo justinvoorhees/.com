@@ -28,7 +28,7 @@ export const achievements: Achievement[] = [
 	{
 		label: "Marble Fork Kaweah (Chrysalis)",
 		suffix: ", Sequoia NP",
-		href: "https://ropewiki.com/Conditions:Marble_Fork_Kaweah_River_(Chrysalis)-20200810062413",
+		href: "https://ropewiki.com/Marble_Fork_Kaweah_River_(Chrysalis)",
 	},
 	{
 		label: "Tourist",
