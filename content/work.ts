@@ -39,7 +39,7 @@ export const workSections: WorkSection[] = [
 			{ src: `${BLOB_BASE}/polychain_03.png`, alt: "Polychain Design System 3", aspectRatio: "4096 / 2039" },
 		],
 		label: "Polychain Design System",
-		href: `${BLOB_BASE}/Polychain%20Design%20System.pdf`,
+		href: `${BLOB_BASE}/polychain-design-system.pdf`,
 	},
 	{
 		id: "structure",

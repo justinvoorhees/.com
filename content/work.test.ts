@@ -21,7 +21,7 @@ describe("workSections", () => {
 	it("links the Polychain Design System label to its Blob-hosted PDF", () => {
 		const polychain = workSections.find((section) => section.id === "polychain");
 		expect(polychain?.href).toBe(
-			"https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com/Polychain%20Design%20System.pdf",
+			"https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com/polychain-design-system.pdf",
 		);
 	});
 

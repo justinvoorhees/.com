@@ -60,7 +60,7 @@ describe("HomePage", () => {
 		render(<HomePage />);
 		expect(screen.getByRole("link", { name: "Polychain Design System" })).toHaveAttribute(
 			"href",
-			"https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com/Polychain%20Design%20System.pdf",
+			"https://r3kzpcvwnu1bcbve.public.blob.vercel-storage.com/polychain-design-system.pdf",
 		);
 	});
 });
