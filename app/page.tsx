@@ -4,13 +4,16 @@ import { workSections } from "@/content/work";
 
 export default function HomePage() {
 	return (
-		<main className="mx-auto flex max-w-[1000px] flex-col px-6 py-[200px]">
+		<main className="mx-auto flex max-w-[1000px] flex-col px-6 py-[200px] sm:py-[333px]">
 			<div className="flex flex-col gap-8 sm:flex-row sm:gap-0">
 				<div className="w-full sm:w-1/2">
 					<p>Justin Voorhees</p>
 					<p>Designer</p>
 					<p>&nbsp;</p>
-					<a href="mailto:hello@justinvoorhees.com" className="text-link">
+					<a
+						href="mailto:hello@justinvoorhees.com"
+						className="text-link hover:underline"
+					>
 						hello@justinvoorhees.com
 					</a>
 				</div>
@@ -19,19 +22,19 @@ export default function HomePage() {
 					<p>Navigating the melt of product roles from San Diego, CA.</p>
 					<p>
 						{"Recently I worked with Fabric on Hypersub, "}
-						<a href="#receipts" className="underline">
+						<a href="#receipts" className="underline hover:text-[#6D6D6D]">
 							Receipts
 						</a>
 						{", and "}
-						<a href="#spandex" className="underline">
+						<a href="#spandex" className="underline hover:text-[#6D6D6D]">
 							spanDEX
 						</a>
 						{". In the past I worked with Typeset and SamCart on their creator platforms, and with Nonlinear for "}
-						<a href="#polychain" className="underline">
+						<a href="#polychain" className="underline hover:text-[#6D6D6D]">
 							Polychain Capital
 						</a>
 						{" and "}
-						<a href="#structure" className="underline">
+						<a href="#structure" className="underline hover:text-[#6D6D6D]">
 							Structure
 						</a>
 						{"."}
@@ -54,7 +57,7 @@ export default function HomePage() {
 									href={achievement.href}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="italic underline"
+									className="italic underline hover:text-[#6D6D6D]"
 								>
 									{achievement.label}
 								</a>

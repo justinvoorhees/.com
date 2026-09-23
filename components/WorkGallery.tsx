@@ -39,7 +39,7 @@ export function WorkGallery({ sections }: { sections: WorkSection[] }) {
 								href={section.href}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="underline"
+								className="underline hover:text-[#6D6D6D]"
 							>
 								{section.label}
 							</a>
