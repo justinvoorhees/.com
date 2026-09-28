@@ -26,7 +26,7 @@ export const achievements: Achievement[] = [
 		href: "https://ropewiki.com/Kolob_Canyon",
 	},
 	{
-		label: "Marble Fork Kaweah (Chrysalis)",
+		label: "Marble Fork Kaweah",
 		suffix: ", Sequoia NP",
 		href: "https://ropewiki.com/Marble_Fork_Kaweah_River_(Chrysalis)",
 	},
